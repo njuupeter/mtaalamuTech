@@ -70,6 +70,10 @@ service cloud.firestore {
     // 3. MATCH BLOCKS
     // ---------------------------------------------------------
     
+    match /test/connection {
+      allow read: if true;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
@@ -88,7 +92,8 @@ service cloud.firestore {
       allow create: if isValidBooking(incoming()) && 
                      incoming().status == 'pending' &&
                      incoming().createdAt == request.time;
-      allow read: if isAdmin() || (isSignedIn() && existing().email == request.auth.token.email);
+      allow get: if true;
+      allow list: if isAdmin() || (isSignedIn() && existing().email == request.auth.token.email);
       allow update: if isAdmin() || (
         isSignedIn() && existing().email == request.auth.token.email &&
         isValidBooking(incoming()) &&

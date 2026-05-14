@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { auth, db } from "../lib/firebase";
+import { auth, db, handleFirestoreError, OperationType } from "../lib/firebase";
 import { collection, query, getDocs, where, doc, getDoc, setDoc } from "firebase/firestore";
 import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import { 
@@ -15,7 +15,8 @@ import {
   Search,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Globe
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -29,6 +30,8 @@ export default function Admin() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,18 +39,28 @@ export default function Admin() {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        // Check if user is admin
-        const adminDoc = await getDoc(doc(db, "admins", u.uid));
-        if (adminDoc.exists()) {
-          setIsAdmin(true);
-        } else {
-          // Check if it's the owner email to auto-boost (for ease of setup)
-          if (u.email === "njuupeter626@gmail.com") {
-             await setDoc(doc(db, "admins", u.uid), { email: u.email });
-             setIsAdmin(true);
+        try {
+          // Check if user is admin
+          const path = `admins/${u.uid}`;
+          const adminDoc = await getDoc(doc(db, "admins", u.uid));
+          if (adminDoc.exists()) {
+            setIsAdmin(true);
           } else {
-            setIsAdmin(false);
+            // Check if it's the owner email to auto-boost (for ease of setup)
+            if (u.email === "njuupeter626@gmail.com") {
+               try {
+                 await setDoc(doc(db, "admins", u.uid), { email: u.email });
+                 setIsAdmin(true);
+               } catch (e) {
+                 handleFirestoreError(e, OperationType.WRITE, path);
+               }
+            } else {
+              setIsAdmin(false);
+            }
           }
+        } catch (e) {
+          console.error("Admin check failed", e);
+          setIsAdmin(false);
         }
       } else {
         setIsAdmin(null);
@@ -58,11 +71,23 @@ export default function Admin() {
   }, []);
 
   const handleLogin = async () => {
+    if (isSigningIn) return;
+    setIsSigningIn(true);
+    setAuthError(null);
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      if (err.code === "auth/popup-blocked") {
+        setAuthError("Sign-in popup was blocked by your browser. Please allow popups for this site or open in a new tab.");
+      } else if (err.code === "auth/cancelled-popup-request") {
+        setAuthError("Sign-in was cancelled. Please try again.");
+      } else {
+        setAuthError("An unexpected error occurred during sign-in. Please try again.");
+      }
+    } finally {
+      setIsSigningIn(false);
     }
   };
 
@@ -91,18 +116,30 @@ export default function Admin() {
             <p className="mt-2 text-slate-500">Access restricted to authorized personnel only.</p>
           </div>
           
+          {authError && (
+            <div className="flex items-center gap-3 rounded-xl bg-rose-50 p-4 text-left text-sm text-rose-800">
+              <AlertCircle className="h-5 w-5 shrink-0" />
+              <p>{authError}</p>
+            </div>
+          )}
+
           {user && isAdmin === false && (
             <div className="flex items-center gap-3 rounded-xl bg-amber-50 p-4 text-left text-sm text-amber-800">
               <AlertCircle className="h-5 w-5 shrink-0" />
-              <p>Your account (<strong>{user.email}</strong>) does not have admin privileges. If you are the owner, contact support.</p>
+              <p>Your account (<strong>{user.email}</strong>) does not have admin privileges.</p>
             </div>
           )}
 
           <button
             onClick={user ? handleLogout : handleLogin}
-            className="flex w-full items-center justify-center gap-3 rounded-xl bg-slate-900 py-4 font-bold text-white transition-all hover:bg-slate-800"
+            disabled={isSigningIn}
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-slate-900 py-4 font-bold text-white transition-all hover:bg-slate-800 disabled:opacity-50"
           >
-            {user ? (
+            {isSigningIn ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" /> Signing in...
+              </>
+            ) : user ? (
               <>
                 <LogOut className="h-5 w-5" /> Sign Out
               </>

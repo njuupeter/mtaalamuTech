@@ -1,4 +1,6 @@
-import { motion } from "motion/react";
+import { useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "motion/react";
+import { useLanguage } from "../lib/LanguageContext";
 import { 
   BarChart3, 
   TrendingUp, 
@@ -9,209 +11,452 @@ import {
   BookOpen, 
   Cpu,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  Plus
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "../lib/utils";
+import Visual3D from "../components/Visual3D";
+import { PRICING_DETAILS } from "../constants";
 
 const services = [
   {
-    id: "investment",
-    title: "Investment Services",
-    description: "Expert advisory for stock market, real estate, and diversified portfolios tracking global trends.",
-    icon: BarChart3,
-    color: "indigo",
-    features: ["Capital Management", "Portfolio Analysis", "Risk Assessment"]
-  },
-  {
     id: "forex",
-    title: "FX Trading & Education",
-    description: "Learn to trade currencies with professional risk management strategies used by institutions.",
+    title: "FX Intelligence & Training",
+    category: "Finance",
+    description: "Master the art of currency trading. Inspired by TradingView's precision, we offer high-fidelity charting education and professional risk management protocols.",
     icon: TrendingUp,
     color: "emerald",
-    features: ["Live Market Analysis", "Beginner to Pro Courses", "One-on-One Mentorship"]
+    features: ["Real-time FX Analytics", "Smart Money Concepts", "Institutional Order Flow", "Mentorship Programs"],
+    visualType: "trading" as const
+  },
+  {
+    id: "investment",
+    title: "Global Investment Advisory",
+    category: "Finance",
+    description: "Navigate global markets with institutional-grade insights. We track real-time trends in equities, commodities, and real estate to optimize your capital growth.",
+    icon: BarChart3,
+    color: "indigo",
+    features: ["Advanced Market Data", "Portfolio Synchronization", "Risk-Mitigation Strategies", "Technical Analysis Tools"],
+    visualType: "graph" as const
   },
   {
     id: "web-dev",
-    title: "Web Development",
-    description: "Full-stack web solutions from landing pages to complex e-commerce and SaaS platforms.",
+    title: "Premium Web Engineering",
+    category: "Engineering",
+    description: "Deployment of high-frequency, standards-compliant web architectures. We follow W3C protocols to build scalable SaaS, e-commerce, and enterprise portals.",
     icon: Globe,
     color: "blue",
-    features: ["Responsive Design", "SEO Optimization", "Ongoing Maintenance"]
+    features: ["Full-Stack Architecture", "W3C Standards Compliance", "Cloud-Native Infrastructure", "Performance Optimization"],
+    visualType: "code" as const
   },
   {
     id: "programming",
-    title: "Custom Programming",
-    description: "Building robust desktop and mobile applications that solve real-world business problems.",
+    title: "Core Software Solutions",
+    category: "Engineering",
+    description: "Algorithmic excellence for complex business challenges. From Python automation to Java enterprise systems, we engineer robust digital tools.",
     icon: Cpu,
     color: "violet",
-    features: ["Python, Java, Node.js", "Database Integration", "Legacy System Migration"]
+    features: ["Python & Java Systems", "RESTful API Development", "Database Optimization", "Legacy System Refactoring"],
+    visualType: "code" as const
   },
   {
     id: "graphic-design",
-    title: "Graphic Design",
-    description: "Visual communication that captures attention and builds trust with your audience.",
+    title: "Visionary Brand Design",
+    category: "Creative",
+    description: "Crafting distinct visual identities that resonate. Our design methodology ensures your brand maintains a premium aesthetic across all digital touchpoints.",
     icon: Layout,
     color: "orange",
-    features: ["Logo & Branding", "Social Media Kits", "Print Media Design"]
+    features: ["Strategic UI/UX Design", "Corporate Identity Kits", "Visual Communication", "Vector Illustration"],
+    visualType: "design" as const
   },
   {
     id: "teaching",
-    title: "Technical Training",
-    description: "Workshops and courses for schools and companies to upgrade their technical literacy.",
+    title: "Technical Literacy Programs",
+    category: "Education",
+    description: "Empowering organizations with modern technical skills. Our workshops are designed to bridge the digital divide for schools and corporate teams.",
     icon: BookOpen,
     color: "rose",
-    features: ["IT Staff Training", "School Tech Programs", "Modern Software Workshops"]
+    features: ["Software Mastery Courses", "Web Tech Fundamentals", "Cybersecurity Literacy", "Corporate Upskilling"],
+    visualType: "abstract" as const
   },
   {
     id: "led-ops",
-    title: "LED Screen Operation",
-    description: "Technical support and content management for large format digital displays and billboards.",
+    title: "LED Screen Integration",
+    category: "Engineering",
+    description: "Powered by NovaStar technology. We provide end-to-end operation for high-resolution digital displays, ensuring pixel-perfect visual delivery.",
     icon: Monitor,
     color: "cyan",
-    features: ["Content Scheduling", "Remote Maintenance", "Event Integration"]
+    features: ["NovaStar Control Systems", "Pixel Calibration", "Synchronized Display Sync", "Event Visual Logistics"],
+    visualType: "screen" as const
   }
 ];
 
+const categories = ["All", "Finance", "Engineering", "Creative", "Education"];
+
+function TiltCard({ children, className }: { children: React.ReactNode, className?: string }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className={cn("relative rounded-[2.5rem] transition-all", className)}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function Services() {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [selectedServicePrice, setSelectedServicePrice] = useState("forex");
+  const { t } = useLanguage();
+
+  const currentPrices = PRICING_DETAILS[selectedServicePrice as keyof typeof PRICING_DETAILS] || PRICING_DETAILS["forex"];
+
+  const services = [
+    {
+      id: "forex",
+      title: t("card_fx_title"),
+      category: "Finance",
+      description: t("card_fx_desc"),
+      icon: TrendingUp,
+      color: "emerald",
+      features: ["FX Analytics", "Smart Money", "Trade Flow", "Mentorship"],
+      visualType: "trading" as const
+    },
+    {
+      id: "investment",
+      title: t("card_intel_title"),
+      category: "Finance",
+      description: t("card_intel_desc"),
+      icon: BarChart3,
+      color: "indigo",
+      features: ["Advanced Data", "Portfolio Sync", "Risk Mitigation", "Technical Analysis"],
+      visualType: "investment" as const
+    },
+    {
+      id: "web-dev",
+      title: t("card_web_title"),
+      category: "Engineering",
+      description: t("card_web_desc"),
+      icon: Globe,
+      color: "blue",
+      features: ["Full-Stack", "W3C Compliant", "Cloud Native", "Performance Ops"],
+      visualType: "computing" as const
+    },
+    {
+      id: "programming",
+      title: t("card_logic_title"),
+      category: "Engineering",
+      description: t("card_logic_desc"),
+      icon: Cpu,
+      color: "violet",
+      features: ["System Design", "API Development", "DB Optimization", "Refactoring"],
+      visualType: "logic" as const
+    },
+    {
+      id: "graphic-design",
+      title: t("card_media_title"),
+      category: "Creative",
+      description: t("card_media_desc"),
+      icon: Layout,
+      color: "orange",
+      features: ["UI/UX Strategy", "Brand Kits", "Visual Comms", "Design Systems"],
+      visualType: "media" as const
+    },
+    {
+      id: "led-ops",
+      title: t("card_led_title"),
+      category: "Engineering",
+      description: t("card_led_desc"),
+      icon: Monitor,
+      color: "cyan",
+      features: ["NovaStar Setup", "Pixel Precision", "Real-time Sync", "Visual Logistics"],
+      visualType: "screen" as const
+    }
+  ];
+
+  const filteredServices = activeCategory === "All" 
+    ? services 
+    : services.filter(s => s.category === activeCategory);
+
   return (
     <div className="pb-24">
       {/* Header */}
-      <section className="bg-slate-900 py-24 text-white">
+      <section className="relative py-24 overflow-hidden">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            className="text-center relative z-10"
           >
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">Our Full Expertise</h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400">
-              MtaalamuTech offers a comprehensive suite of digital and financial services 
-              designed to propel your growth in the modern economy.
+            <h1 className="text-5xl font-black tracking-tight sm:text-7xl text-white">
+              Full Spectrum <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">Innovation</span>
+            </h1>
+            <p className="mx-auto mt-8 max-w-2xl text-lg text-slate-400 leading-relaxed">
+              Experience the convergence of technology and finance. MtaalamuTech provides the 
+              tools for the next generation of digital leaders.
             </p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-12 sm:mt-16 relative z-10"
+          >
+            <div className="flex overflow-x-auto pb-4 sm:pb-0 scrollbar-hide sm:flex-wrap sm:justify-center gap-2 sm:gap-3 px-4 -mx-4 sm:px-0 sm:mx-0">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={cn(
+                    "whitespace-nowrap px-6 py-2.5 sm:px-8 sm:py-3 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all duration-300 border",
+                    activeCategory === cat
+                      ? "bg-indigo-600 border-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.4)]"
+                      : "glass-card text-slate-400 hover:border-white/20 hover:text-white"
+                  )}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* Grid */}
-      <div className="container mx-auto -mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-2">
-          {services.map((service, i) => (
-            <motion.div
-              key={service.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="group flex flex-col rounded-[2.5rem] bg-white p-2 shadow-xl shadow-slate-200/60 lg:flex-row lg:items-stretch"
-            >
-              {/* Visual Side */}
-              <div className={cn(
-                "relative flex h-48 w-full flex-col justify-center rounded-[2rem] p-8 text-white lg:h-auto lg:w-48 lg:flex-shrink-0",
-                `bg-${service.color}-600`
-              )}>
-                <service.icon className="h-12 w-12" />
-                <div className="absolute inset-0 bg-white/10 opacity-0 transition-opacity group-hover:opacity-100" />
-              </div>
-
-              {/* Content Side */}
-              <div className="flex flex-grow flex-col p-8 lg:p-10">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-slate-900">{service.title}</h2>
-                  <div className={cn("hidden h-2 w-2 rounded-full lg:block", `bg-${service.color}-600`)} />
-                </div>
-                <p className="mt-4 text-slate-600 leading-relaxed">
-                  {service.description}
-                </p>
-                
-                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {service.features.map((f, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm font-medium text-slate-500">
-                      <CheckCircle2 className={cn("h-4 w-4", `text-${service.color}-600`)} />
-                      {f}
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div 
+          layout
+          className="grid gap-10 lg:grid-cols-2"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredServices.map((service, i) => (
+              <motion.div
+                layout
+                key={service.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              >
+                <TiltCard className="group h-full">
+                  <div className="flex flex-col overflow-hidden rounded-[2.5rem] lg:flex-row h-full glass-card">
+                    {/* Visual Side */}
+                    <div className={cn(
+                      "relative h-48 w-full lg:h-auto lg:w-56 lg:flex-shrink-0 overflow-hidden",
+                      `bg-gradient-to-br from-${service.color}-600/20 to-transparent`
+                    )}>
+                      <Visual3D color={service.color} type={service.visualType} className="scale-150 transform-gpu" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className={cn(
+                          "p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl",
+                          `text-${service.color}-400`
+                        )}>
+                          <service.icon className="h-8 w-8" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-4 left-4">
+                        <span className="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[8px] font-black uppercase tracking-widest text-slate-300">
+                          {service.category}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className="mt-10 flex items-center justify-between pt-6 border-t border-slate-100">
-                  <span className="text-sm font-bold text-slate-400">#MT-{service.id.toUpperCase()}</span>
-                  <Link 
-                    to={`/booking?service=${service.id}`}
-                    className="flex items-center gap-1 text-sm font-bold text-indigo-600 hover:gap-2 transition-all"
-                  >
-                    Get Started <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                    {/* Content Side */}
+                    <div className="flex flex-grow flex-col p-6 sm:p-8 lg:p-10 justify-between">
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors">
+                          {service.title}
+                        </h2>
+                        <p className="mt-4 text-slate-400 text-sm leading-relaxed">
+                          {service.description}
+                        </p>
+                        
+                        <div className="mt-8 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
+                          {service.features.map((f, idx) => (
+                            <div key={idx} className="flex items-center gap-3 text-[10px] sm:text-xs font-bold text-slate-300">
+                              <div className={cn("h-1 w-1 rounded-full", `bg-${service.color}-500 shadow-[0_0_8px] shadow-${service.color}-500`)} />
+                              {f}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5">
+                        <span className="font-mono text-[10px] tracking-widest text-slate-500 order-2 sm:order-1">#{service.id.toUpperCase()}</span>
+                        <a 
+                          href="#pricing"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                            setSelectedServicePrice(service.id);
+                          }}
+                          className="group/link w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-white/5 px-6 py-2.5 text-[10px] sm:text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 order-1 sm:order-2 cursor-pointer"
+                        >
+                          {t("ui_booking")} <ChevronRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </TiltCard>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Pricing Table Section */}
-      <section className="container mx-auto mt-32 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-16 text-center">
-          <h2 className="text-3xl font-extrabold text-slate-900">Transparent Pricing</h2>
-          <p className="mt-4 text-slate-500">Pick a package that fits your ambition</p>
+      <section id="pricing" className="container mx-auto mt-32 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-24 text-center">
+          <h2 className="text-xs font-black uppercase tracking-[0.3em] text-indigo-500 underline underline-offset-8">Unit Economics</h2>
+          <p className="mt-8 text-4xl font-extrabold tracking-tight text-white sm:text-7xl uppercase">Optimized Packages</p>
+          
+          <div className="mt-12 flex flex-col items-center gap-8">
+            {/* Billing Toggle */}
+            <div className="flex items-center gap-4 bg-white/5 p-1.5 rounded-full border border-white/10">
+              <button 
+                onClick={() => setBillingCycle("monthly")}
+                className={cn(
+                  "px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                  billingCycle === "monthly" ? "bg-white text-slate-900 shadow-xl scale-105" : "text-slate-500 hover:text-white"
+                )}
+              >
+                Monthly
+              </button>
+              <button 
+                onClick={() => setBillingCycle("yearly")}
+                className={cn(
+                  "px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all relative overflow-hidden",
+                  billingCycle === "yearly" ? "bg-white text-slate-900 shadow-xl scale-105" : "text-slate-500 hover:text-white"
+                )}
+              >
+                Yearly
+                <span className="absolute -top-1 -right-1 px-2 py-0.5 bg-emerald-500 text-[6px] text-white rounded-full">Save 20%</span>
+              </button>
+            </div>
+
+            {/* Service Selector */}
+            <div className="flex overflow-x-auto pb-4 sm:pb-0 scrollbar-hide sm:flex-wrap justify-center gap-3 w-full px-4 sm:px-0">
+              {Object.keys(PRICING_DETAILS).map((serviceId) => (
+                <button
+                  key={serviceId}
+                  onClick={() => setSelectedServicePrice(serviceId)}
+                  className={cn(
+                    "whitespace-nowrap px-6 py-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all border",
+                    selectedServicePrice === serviceId 
+                      ? "bg-indigo-600/20 border-indigo-500 text-indigo-400" 
+                      : "bg-white/5 border-white/5 text-slate-500 hover:border-white/10 hover:text-slate-300"
+                  )}
+                >
+                  {serviceId.replace("-", " ")}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-10 md:grid-cols-3">
           {[
             {
               name: "Standard",
-              price: "49k",
-              desc: "Perfect for individuals and small startups.",
-              items: ["Single Project", "Basic Support", "3 Revisions"],
+              price: currentPrices.basic[billingCycle],
+              desc: "Foundation for individual learners and small scale operations.",
+              items: currentPrices.basic.features,
               highlight: false
             },
             {
               name: "Premium",
-              price: "199k",
-              desc: "Optimized for growing businesses and serious traders.",
-              items: ["Priority Queue", "24/7 Support", "Unlimited Revisions", "Strategic Advisory"],
+              price: currentPrices.pro[billingCycle],
+              desc: "Optimized for growing businesses and serious practitioners.",
+              items: currentPrices.pro.features,
               highlight: true
             },
             {
-              name: "Enterprise",
-              price: "Custom",
-              desc: "Dedicated solutions for large organizations.",
-              items: ["Dedicated Manager", "On-site Integration", "Compliance Audit", "Lifetime Support"],
+              name: "Elite",
+              price: currentPrices.elite[billingCycle],
+              desc: "Dedicated institutional-grade solutions for large organizations.",
+              items: currentPrices.elite.features,
               highlight: false
             }
           ].map((plan, i) => (
             <div key={i} className={cn(
-              "flex flex-col rounded-3xl p-10 transition-all",
+              "flex flex-col rounded-[2.5rem] sm:rounded-[3.5rem] p-8 sm:p-12 transition-all border relative overflow-hidden group",
               plan.highlight 
-                ? "bg-slate-900 text-white shadow-2xl shadow-indigo-500/20 scale-105" 
-                : "bg-white border border-slate-100"
+                ? "bg-indigo-600 border-white/20 text-white shadow-[0_0_50px_rgba(79,70,229,0.3)] scale-100 md:scale-105 z-10" 
+                : "glass-card text-slate-200"
             )}>
-              <h3 className="text-xl font-bold">{plan.name}</h3>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">{plan.price}</span>
-                <span className={cn("text-sm", plan.highlight ? "text-slate-400" : "text-slate-500")}>/project</span>
+              {plan.highlight && (
+                <div className="absolute top-0 right-0 px-6 py-2 bg-white text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-bl-3xl">Most Popular</div>
+              )}
+              <h3 className="text-xl font-black uppercase tracking-widest">{plan.name}</h3>
+              <div className="mt-8 flex items-baseline gap-2">
+                <span className="text-4xl sm:text-5xl font-black tracking-tighter">
+                  {plan.price !== "Custom" ? "TZS" : ""} {plan.price}
+                </span>
+                {plan.price !== "Custom" && (
+                   <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-60")}>/{billingCycle === "monthly" ? "mo" : "yr"}</span>
+                )}
               </div>
-              <p className={cn("mt-6 text-sm", plan.highlight ? "text-slate-300" : "text-slate-500")}>{plan.desc}</p>
+              <p className={cn("mt-8 text-sm font-medium leading-relaxed h-12 overflow-hidden", plan.highlight ? "text-indigo-100" : "text-slate-400")}>{plan.desc}</p>
               
-              <ul className="mt-8 space-y-4 flex-grow">
+              <ul className="mt-12 space-y-6 flex-grow">
                 {plan.items.map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-sm font-medium">
-                    <CheckCircle2 className="h-5 w-5 text-indigo-500" />
+                  <li key={idx} className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                    <CheckCircle2 className={cn("h-4 w-4 shrink-0", plan.highlight ? "text-white" : "text-indigo-400")} />
                     {item}
                   </li>
                 ))}
               </ul>
 
-              <Link
-                to="/booking"
+              <a
+                href={`https://wa.me/255716040796?text=${encodeURIComponent(`Hello MtaalamuTech, I want to purchase the ${plan.name} plan for ${selectedServicePrice.replace("-", " ")} (${billingCycle} billing) for ${plan.price !== "Custom" ? "TZS " + plan.price : "Custom Price"}.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={cn(
-                  "mt-10 rounded-xl py-4 text-center font-bold transition-all",
+                  "mt-14 rounded-2xl py-6 text-center text-xs font-black uppercase tracking-[0.3em] transition-all active:scale-95",
                   plan.highlight
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-slate-100 text-slate-900 hover:bg-slate-200"
+                    ? "bg-white text-indigo-600 hover:bg-slate-100"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700"
                 )}
               >
-                Get Started
-              </Link>
+                BUY NOW
+              </a>
             </div>
           ))}
         </div>

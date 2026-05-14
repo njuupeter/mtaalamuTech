@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Rocket, LogIn, User } from "lucide-react";
+import { Menu, X, LogIn, User, Languages } from "lucide-react";
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { useLanguage } from "../lib/LanguageContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const { language, setLanguage, t } = useLanguage();
   const location = useLocation();
 
   useEffect(() => {
@@ -28,72 +30,70 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: t("nav_home"), href: "/" },
+    { name: t("nav_services"), href: "/services" },
+    { name: t("nav_about"), href: "/about" },
+    { name: t("nav_faq"), href: "/#faq" },
+    { name: t("nav_contact"), href: "/contact" },
   ];
 
   return (
     <nav
       className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 z-50 w-full transition-all duration-500",
         isScrolled
-          ? "border-b border-slate-200 bg-white/80 py-3 backdrop-blur-md"
-          : "bg-transparent py-5"
+          ? "border-b border-white/5 bg-[#05060f]/60 py-4 backdrop-blur-2xl"
+          : "bg-transparent py-8"
       )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-indigo-600 p-1.5 rounded-lg">
-              <Rocket className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">
-              Mtaalamu<span className="text-indigo-600">Tech</span>
-            </span>
+          <Link to="/" className="flex items-center group">
+            <img 
+              src="/logo.png" 
+              alt="MtaalamuTech" 
+              className="h-12 w-auto transition-all duration-500 group-hover:scale-110 filter brightness-110" 
+              referrerPolicy="no-referrer"
+            />
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex md:items-center md:gap-8">
+          <div className="hidden md:flex md:items-center md:gap-10">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-indigo-600",
-                  location.pathname === link.href ? "text-indigo-600" : "text-slate-600"
+                  "text-xs font-black uppercase tracking-[0.2em] transition-all hover:text-white hover:tracking-[0.3em]",
+                  location.pathname === link.href ? "text-indigo-400" : "text-slate-400"
                 )}
               >
                 {link.name}
               </Link>
             ))}
-            <div className="h-4 w-px bg-slate-200" />
-            {user ? (
-              <Link
-                to="/admin"
-                className="flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
-              >
-                <User className="h-4 w-4" />
-                Admin
-              </Link>
-            ) : (
-              <Link
-                to="/admin"
-                className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/25"
-              >
-                Get Started
-              </Link>
-            )}
+
+            <button
+              onClick={() => setLanguage(language === "en" ? "sw" : "en")}
+              className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all"
+            >
+              <Languages className="h-4 w-4" />
+              {language === "en" ? "SW" : "EN"}
+            </button>
           </div>
 
           {/* Mobile Toggle */}
-          <div className="flex md:hidden">
+          <div className="flex items-center gap-4 md:hidden">
+            <button
+              onClick={() => setLanguage(language === "en" ? "sw" : "en")}
+              className="p-2 text-slate-400"
+            >
+              <Languages className="h-5 w-5" />
+            </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-600 hover:text-indigo-600"
+              className="text-white hover:text-indigo-400 p-2"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
             </button>
           </div>
         </div>
@@ -103,31 +103,27 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="border-b border-slate-100 bg-white md:hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-x-0 top-[88px] bg-[#05060f]/95 backdrop-blur-2xl border-b border-white/5 md:hidden z-40"
           >
-            <div className="space-y-1 px-4 pb-6 pt-2">
+            <div className="space-y-2 px-6 pb-12 pt-8">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="block rounded-lg px-3 py-4 text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600"
+                  className={cn(
+                    "block rounded-2xl px-6 py-6 text-lg font-black uppercase tracking-[0.2em] transition-all",
+                    location.pathname === link.href 
+                      ? "bg-white/5 text-indigo-400 border border-white/10" 
+                      : "text-slate-400 hover:text-white"
+                  )}
                 >
                   {link.name}
                 </Link>
               ))}
-              <div className="mt-4 px-3">
-                <Link
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="flex w-full items-center justify-center rounded-xl bg-slate-900 py-4 text-center font-semibold text-white"
-                >
-                  {user ? "Admin Dashboard" : "Get Started"}
-                </Link>
-              </div>
             </div>
           </motion.div>
         )}

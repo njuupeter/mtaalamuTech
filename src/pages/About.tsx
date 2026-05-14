@@ -39,19 +39,19 @@ export default function About() {
               title: "Our Mission",
               desc: "To deliver elite technological and financial solutions that empower businesses and individuals to reach their full potential.",
               icon: Target,
-              color: "bg-indigo-600"
+              color: "indigo"
             },
             {
               title: "Our Vision",
               desc: "To be the leading innovator in Africa's digital economy, setting the gold standard for quality and trust.",
               icon: Eye,
-              color: "bg-emerald-600"
+              color: "emerald"
             },
             {
               title: "Our Promise",
               desc: "Integrity, excellence, and transparency in every line of code and every investment insight we provide.",
               icon: Shield,
-              color: "bg-violet-600"
+              color: "violet"
             }
           ].map((box, i) => (
             <motion.div 
@@ -60,13 +60,13 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group flex flex-col rounded-[2.5rem] bg-white p-8 shadow-xl shadow-slate-200/50 transition-all hover:-translate-y-2"
+              className="group flex flex-col rounded-[2.5rem] bg-white/5 border border-white/5 p-8 backdrop-blur-xl transition-all hover:bg-white/[0.08] hover:-translate-y-2"
             >
-              <div className={cn("inline-flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-lg mb-8", box.color)}>
+              <div className={cn("inline-flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-lg mb-8", `bg-${box.color}-600`)}>
                 <box.icon className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900">{box.title}</h3>
-              <p className="mt-6 text-slate-600 leading-relaxed">
+              <h3 className="text-2xl font-bold text-white">{box.title}</h3>
+              <p className="mt-6 text-slate-400 leading-relaxed">
                 {box.desc}
               </p>
             </motion.div>
@@ -75,26 +75,26 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="bg-white py-24">
+      <section className="py-24">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-24 flex flex-col items-center text-center">
-            <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">Our Core Values</h2>
+            <h2 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl uppercase tracking-[0.2em]">Core Values</h2>
             <div className="mt-6 h-1 w-20 rounded-full bg-indigo-600" />
           </div>
 
           <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
             {[
-              { title: "Innovation", icon: Rocket, text: "Constantly pushing the boundaries of what is possible." },
+              { title: "Innovation", icon: Gem, text: "Constantly pushing the boundaries of what is possible." },
               { title: "Excellence", icon: Gem, text: "Relentless pursuit of quality in every detail." },
               { title: "Trust", icon: Users, text: "Building long-term partnerships based on transparency." },
               { title: "Expertise", icon: Award, text: "Deep knowledge across every domain we serve." },
             ].map((v, i) => (
-              <div key={i} className="text-center">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-indigo-600 border border-slate-100">
+              <div key={i} className="text-center group">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-indigo-400 border border-white/5 transition-transform group-hover:scale-110">
                   <v.icon className="h-8 w-8" />
                 </div>
-                <h4 className="text-xl font-bold text-slate-900">{v.title}</h4>
-                <p className="mt-4 text-sm text-slate-500">{v.text}</p>
+                <h4 className="text-xl font-bold text-white">{v.title}</h4>
+                <p className="mt-4 text-sm text-slate-500 leading-relaxed">{v.text}</p>
               </div>
             ))}
           </div>

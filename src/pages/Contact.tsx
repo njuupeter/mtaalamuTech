@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Phone, Mail, MapPin, MessageSquare, Send, Clock, Globe } from "lucide-react";
+import { Phone, Mail, MapPin, MessageSquare, Send, Clock, Globe, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
@@ -30,30 +30,30 @@ export default function Contact() {
   return (
     <div className="pb-24">
       {/* Header */}
-      <section className="bg-white py-24">
+      <section className="py-24 relative overflow-hidden">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div>
-              <h1 className="text-5xl font-black tracking-tight text-slate-900 sm:text-7xl">Get in <span className="text-indigo-600">Touch</span></h1>
-              <p className="mt-8 text-lg text-slate-600 leading-relaxed max-w-xl">
-                Have a project in mind or need financial advice? Our team is standing by to assist 
-                you. Send us a message and we'll reply within 24 business hours.
+          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+            <div className="relative z-10">
+              <h1 className="text-6xl font-black tracking-tighter text-white sm:text-8xl">Contact <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400 font-serif italic">Command</span></h1>
+              <p className="mt-8 text-lg text-slate-400 leading-relaxed max-w-xl font-medium">
+                Our operations team is ready to assist. Whether you're initializing a new project 
+                or seeking market intelligence, we are here.
               </p>
               
-              <div className="mt-12 space-y-8">
+              <div className="mt-16 space-y-10">
                 {[
-                  { icon: Phone, label: "Call Us", value: "0716040796" },
-                  { icon: Mail, label: "Email Support", value: "info@mtaalamutech.co.tz" },
-                  { icon: MapPin, label: "Office Location", value: "Dar es Salaam, Tanzania" },
-                  { icon: Clock, label: "Business Hours", value: "Mon - Sat: 08:00 AM - 06:00 PM" }
+                  { icon: Phone, label: "Neural Link", value: "0716040796" },
+                  { icon: Mail, label: "Data Stream", value: "info@mtaalamutech.co.tz" },
+                  { icon: MapPin, label: "Base Location", value: "Dar es Salaam, Tanzania" },
+                  { icon: Clock, label: "Uptime", value: "Mon - Sat: 08:00 AM - 06:00 PM" }
                 ].map((item, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-                      <item.icon className="h-5 w-5" />
+                  <div key={i} className="flex gap-6 group">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-indigo-400 transition-transform group-hover:scale-110 group-hover:bg-white/10">
+                      <item.icon className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{item.label}</p>
-                      <p className="mt-1 font-bold text-slate-900">{item.value}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{item.label}</p>
+                      <p className="mt-1 text-lg font-bold text-white transition-colors group-hover:text-indigo-400">{item.value}</p>
                     </div>
                   </div>
                 ))}
@@ -62,67 +62,73 @@ export default function Contact() {
 
             {/* Form */}
             <div className="relative">
-              <div className="absolute -inset-4 -z-10 rounded-[3rem] bg-indigo-50 blur-2xl" />
+              <div className="absolute -inset-10 -z-10 rounded-[3rem] bg-indigo-600/10 blur-[80px]" />
               <form 
                 onSubmit={handleSubmit}
-                className="rounded-[2.5rem] bg-white p-8 shadow-2xl shadow-slate-200/50 lg:p-12"
+                className="rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-2xl p-8 lg:p-12 shadow-2xl relative overflow-hidden"
               >
+                <div className="absolute top-0 right-0 p-8 opacity-10">
+                  <MessageSquare className="h-24 w-24 text-white" />
+                </div>
+                
                 {sent && (
-                  <div className="mb-8 rounded-2xl bg-emerald-50 p-4 text-sm font-medium text-emerald-600">
-                    Message sent successfully! We'll get back to you soon.
+                  <div className="mb-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-5 text-sm font-bold text-emerald-400 flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                    Transmission Received. Awaiting Response.
                   </div>
                 )}
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Name</label>
+                
+                <div className="grid gap-8 sm:grid-cols-2">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Identity</label>
                     <input 
                       required
                       type="text" 
                       value={form.name}
                       onChange={e => setForm({...form, name: e.target.value})}
-                      placeholder="Your Name"
-                      className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 focus:border-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-50 transition-all"
+                      placeholder="Full Name"
+                      className="w-full rounded-2xl border border-white/5 bg-white/[0.03] px-6 py-4 text-white focus:border-indigo-500 focus:bg-white/[0.07] focus:outline-none transition-all placeholder:text-slate-600"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Email</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Digital Address</label>
                     <input 
                       required
                       type="email" 
                       value={form.email}
                       onChange={e => setForm({...form, email: e.target.value})}
-                      placeholder="Your Email"
-                      className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 focus:border-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-50 transition-all"
+                      placeholder="Email@domain.com"
+                      className="w-full rounded-2xl border border-white/5 bg-white/[0.03] px-6 py-4 text-white focus:border-indigo-500 focus:bg-white/[0.07] focus:outline-none transition-all placeholder:text-slate-600"
                     />
                   </div>
                 </div>
-                <div className="mt-6 space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Subject</label>
+                <div className="mt-8 space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Objective</label>
                   <input 
                     required
                     type="text" 
                     value={form.subject}
                     onChange={e => setForm({...form, subject: e.target.value})}
-                    placeholder="How can we help?"
-                    className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 focus:border-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-50 transition-all"
+                    placeholder="Subject of inquiry"
+                    className="w-full rounded-2xl border border-white/5 bg-white/[0.03] px-6 py-4 text-white focus:border-indigo-500 focus:bg-white/[0.07] focus:outline-none transition-all placeholder:text-slate-600"
                   />
                 </div>
-                <div className="mt-6 space-y-2">
-                  <label className="text-sm font-bold text-slate-700">Message</label>
+                <div className="mt-8 space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Intelligence</label>
                   <textarea 
                     required
                     rows={4}
                     value={form.message}
                     onChange={e => setForm({...form, message: e.target.value})}
-                    placeholder="Write your message here..."
-                    className="w-full rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 focus:border-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-50 transition-all"
+                    placeholder="Details of your request..."
+                    className="w-full rounded-2xl border border-white/5 bg-white/[0.03] px-6 py-4 text-white focus:border-indigo-500 focus:bg-white/[0.07] focus:outline-none transition-all placeholder:text-slate-600"
                   />
                 </div>
                 <button 
                   disabled={loading}
-                  className="mt-10 flex w-full items-center justify-center gap-3 rounded-xl bg-slate-900 py-4 font-bold text-white transition-all hover:bg-indigo-600 disabled:opacity-50"
+                  className="mt-12 group flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-6 py-5 font-black text-slate-900 transition-all hover:bg-slate-100 disabled:opacity-50"
                 >
-                  {loading ? "Sending..." : <>Send Message <Send className="h-4 w-4" /></>}
+                  {loading ? "Transmitting..." : <>Initiate Contact <Send className="h-5 w-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" /></>}
                 </button>
               </form>
             </div>

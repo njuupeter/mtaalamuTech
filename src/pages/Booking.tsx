@@ -103,15 +103,15 @@ export default function Booking() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8">
-      <div className="mb-20 text-center">
-        <h1 className="text-6xl font-black tracking-tighter text-white sm:text-8xl uppercase">Initialize <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400 font-serif italic lowercase">engagement</span></h1>
-        <p className="mt-8 text-lg text-slate-400 font-medium max-w-2xl mx-auto">Configure your service parameters below to initiate the technical briefing and project onboarding.</p>
+      <div className="mb-12 sm:mb-20 text-center">
+        <h1 className="text-4xl font-black tracking-tighter text-white sm:text-8xl uppercase leading-none">Initialize <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400 font-serif italic lowercase">engagement</span></h1>
+        <p className="mt-6 sm:mt-8 text-sm sm:text-lg text-slate-400 font-medium max-w-2xl mx-auto px-4">Configure your service parameters below to initiate the technical briefing and project onboarding.</p>
       </div>
 
       <div className="grid gap-16 lg:grid-cols-3">
         {/* Info Side */}
         <div className="lg:col-span-1">
-          <div className="rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-xl p-10 text-white relative overflow-hidden group">
+          <div className="rounded-[2.5rem] sm:rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-xl p-8 sm:p-10 text-white relative overflow-hidden group shadow-2xl">
             <div className="absolute top-12 right-0 p-8 opacity-10 transition-opacity group-hover:opacity-20">
               <img src="/logo.png" alt="" className="h-40 w-auto" />
             </div>
@@ -142,7 +142,7 @@ export default function Booking() {
         {/* Form Side */}
         <div className="lg:col-span-2 relative">
           <div className="absolute -inset-10 -z-10 bg-indigo-500/5 blur-[100px] rounded-full" />
-          <form onSubmit={handleSubmit} className="space-y-8 rounded-[3rem] bg-white/5 border border-white/10 p-8 sm:p-12 backdrop-blur-2xl transition-all hover:bg-white/[0.08]">
+          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 rounded-[2.5rem] sm:rounded-[3rem] bg-white/5 border border-white/10 p-6 sm:p-12 backdrop-blur-2xl transition-all hover:bg-white/[0.08] shadow-2xl">
             {error && (
               <div className="rounded-2xl bg-rose-500/10 border border-rose-500/20 p-5 text-sm font-bold text-rose-400">
                 {error}

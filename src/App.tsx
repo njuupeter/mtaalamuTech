@@ -6,6 +6,7 @@ import Chatbot from "./components/Chatbot";
 import WhatsAppButton from "./components/WhatsAppButton";
 import { Loader2 } from "lucide-react";
 import { LanguageProvider } from "./lib/LanguageContext";
+import { ThemeProvider } from "./lib/ThemeContext";
 
 // Lazy load pages
 const Home = lazy(() => import("./pages/Home"));
@@ -26,10 +27,11 @@ function Loading() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <Router>
-        <div className="flex min-h-screen flex-col font-sans text-slate-200 transition-colors duration-300 relative">
-          {/* Background Elements */}
+    <ThemeProvider>
+      <LanguageProvider>
+        <Router>
+          <div className="flex min-h-screen flex-col font-sans text-slate-900 dark:text-slate-200 transition-colors duration-300 relative bg-white dark:bg-[#05060f]">
+            {/* Background Elements */}
           <div className="atmosphere-bg" />
           <div className="noise-overlay" />
           <div className="grid-overlay" />
@@ -58,5 +60,6 @@ export default function App() {
         </div>
       </Router>
     </LanguageProvider>
+  </ThemeProvider>
   );
 }

@@ -161,7 +161,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-10 max-w-5xl text-6xl font-black tracking-tighter text-white sm:text-8xl lg:text-[10rem] leading-[0.8] uppercase"
+              className="mt-10 max-w-5xl text-4xl sm:text-7xl lg:text-[10rem] leading-[0.9] sm:leading-[0.8] font-black tracking-tighter text-white uppercase"
             >
               {t("hero_title_1") && <>{t("hero_title_1")} <br /></>}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-white to-indigo-500">
@@ -195,7 +195,7 @@ export default function Home() {
         </div>
 
         {/* Hero Background 3D element */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
           <motion.div 
             animate={{ 
               y: [0, -20, 0],
@@ -251,7 +251,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="group relative flex flex-col rounded-[2.5rem] p-10 glass-card glass-hover border-white/5"
+                className="group relative flex flex-col rounded-[2.5rem] p-6 sm:p-10 glass-card glass-hover border-white/5"
               >
                 <div className="relative h-48 w-full mb-8 rounded-3xl overflow-hidden glass-card border-white/5 flex items-center justify-center p-4">
                    <Visual3D color={service.color} type={service.visualType} className="scale-75 group-hover:scale-90 transition-transform duration-500" />
@@ -330,7 +330,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group flex flex-col rounded-[3rem] p-12 glass-card glass-hover relative overflow-hidden"
+                className="group flex flex-col rounded-[3rem] p-8 sm:p-12 glass-card glass-hover relative overflow-hidden"
               >
                 <Quote className="absolute -top-4 -right-4 h-24 w-24 text-white/[0.03] rotate-12" />
                 <div className="mb-10 flex gap-1.5 relative z-10">
@@ -365,11 +365,11 @@ export default function Home() {
       </section>
 
       {/* Trading Advantage Section */}
-      <section className="relative overflow-hidden py-32">
+      <section className="relative overflow-hidden py-24 sm:py-32">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 items-center">
             <div className="relative order-2 lg:order-1">
-              <div className="aspect-square glass-card rounded-[4rem] border-white/5 relative overflow-hidden flex items-center justify-center p-12">
+              <div className="aspect-square glass-card rounded-[2.5rem] sm:rounded-[4rem] border-white/5 relative overflow-hidden flex items-center justify-center p-6 sm:p-12">
                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none" />
                  <Visual3D color="indigo" type="candlestick" className="scale-150" />
                  
@@ -393,11 +393,11 @@ export default function Home() {
             </div>
 
             <div className="order-1 lg:order-2">
-              <h2 className="text-sm font-black uppercase tracking-[0.4em] text-indigo-400 mb-8">Proprietary Tech</h2>
-              <p className="text-5xl font-black tracking-tighter text-white sm:text-7xl leading-[0.9] uppercase mb-10">
+              <h2 className="text-[10px] sm:text-sm font-black uppercase tracking-[0.4em] text-indigo-400 mb-6 sm:mb-8">Proprietary Tech</h2>
+              <p className="text-4xl font-black tracking-tighter text-white sm:text-7xl leading-[0.9] uppercase mb-8 sm:mb-10">
                 The Edge You <br /> <span className="text-slate-500">Need to Win.</span>
               </p>
-              <p className="text-slate-400 text-lg leading-relaxed mb-12 max-w-lg">
+              <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-10 sm:mb-12 max-w-lg">
                 MtaalamuTech leverages high-fidelity data visualization and institutional-grade analytics to provide traders with a distinct market advantage.
               </p>
               
@@ -588,7 +588,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-[4rem] bg-indigo-600 p-10 text-center text-white shadow-2xl shadow-indigo-600/30 lg:p-24 overflow-hidden">
+        <div className="relative rounded-[2.5rem] sm:rounded-[4rem] bg-indigo-600 p-8 sm:p-10 text-center text-white shadow-2xl shadow-indigo-600/30 lg:p-24 overflow-hidden">
           <div className="absolute inset-0 opacity-20">
              <div className="h-full w-full bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] [background-size:20px_20px]" />
           </div>

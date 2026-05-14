@@ -224,10 +224,10 @@ export default function Services() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center relative z-10"
           >
-            <h1 className="text-5xl font-black tracking-tight sm:text-7xl text-white">
+            <h1 className="text-4xl font-black tracking-tight sm:text-7xl text-white uppercase leading-[1.1]">
               Full Spectrum <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400">Innovation</span>
             </h1>
-            <p className="mx-auto mt-8 max-w-2xl text-lg text-slate-400 leading-relaxed">
+            <p className="mx-auto mt-6 sm:mt-8 max-w-2xl text-base sm:text-lg text-slate-400 leading-relaxed font-medium">
               Experience the convergence of technology and finance. MtaalamuTech provides the 
               tools for the next generation of digital leaders.
             </p>
@@ -276,13 +276,13 @@ export default function Services() {
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
                 <TiltCard className="group h-full">
-                  <div className="flex flex-col overflow-hidden rounded-[2.5rem] lg:flex-row h-full glass-card">
+                  <div className="flex flex-col overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] lg:flex-row h-full glass-card border-white/5 shadow-2xl">
                     {/* Visual Side */}
                     <div className={cn(
-                      "relative h-48 w-full lg:h-auto lg:w-56 lg:flex-shrink-0 overflow-hidden",
+                      "relative h-40 sm:h-48 w-full lg:h-auto lg:w-56 lg:flex-shrink-0 overflow-hidden",
                       `bg-gradient-to-br from-${service.color}-600/20 to-transparent`
                     )}>
-                      <Visual3D color={service.color} type={service.visualType} className="scale-150 transform-gpu" />
+                      <Visual3D color={service.color} type={service.visualType} className="scale-125 sm:scale-150 transform-gpu" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className={cn(
                           "p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl",
@@ -301,14 +301,14 @@ export default function Services() {
                     {/* Content Side */}
                     <div className="flex flex-grow flex-col p-6 sm:p-8 lg:p-10 justify-between">
                       <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors">
+                        <h2 className="text-lg sm:text-2xl font-black text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
                           {service.title}
                         </h2>
-                        <p className="mt-4 text-slate-400 text-sm leading-relaxed">
+                        <p className="mt-3 sm:mt-4 text-slate-400 text-xs sm:text-sm leading-relaxed">
                           {service.description}
                         </p>
                         
-                        <div className="mt-8 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
+                        <div className="mt-6 sm:mt-8 grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2">
                           {service.features.map((f, idx) => (
                             <div key={idx} className="flex items-center gap-3 text-[10px] sm:text-xs font-bold text-slate-300">
                               <div className={cn("h-1 w-1 rounded-full", `bg-${service.color}-500 shadow-[0_0_8px] shadow-${service.color}-500`)} />

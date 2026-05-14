@@ -1,0 +1,122 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ---------------------------------------------------------
+    // 1. GLOBAL HELPERS
+    // ---------------------------------------------------------
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    // ---------------------------------------------------------
+    // 2. ENTITY VALIDATORS
+    // ---------------------------------------------------------
+    
+    function isValidService(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.description is string && data.description.size() <= 1000 &&
+             data.category is string &&
+             data.price is number && data.price >= 0 &&
+             data.iconName is string;
+    }
+    
+    function isValidBooking(data) {
+      return data.serviceId is string &&
+             data.customerName is string && data.customerName.size() <= 100 &&
+             data.phone is string && data.phone.size() <= 20 &&
+             data.status in ['pending', 'confirmed', 'completed', 'cancelled'] &&
+             data.createdAt is timestamp;
+    }
+    
+    function isValidPayment(data) {
+      return data.bookingId is string &&
+             data.amount is number && data.amount >= 0 &&
+             data.method is string &&
+             data.status in ['pending', 'successful', 'failed'] &&
+             data.createdAt is timestamp;
+    }
+    
+    function isValidFeedback(data) {
+      return data.customerName is string && data.customerName.size() <= 100 &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.message is string && data.message.size() <= 2000 &&
+             data.approved is bool &&
+             data.createdAt is timestamp;
+    }
+
+    // ---------------------------------------------------------
+    // 3. MATCH BLOCKS
+    // ---------------------------------------------------------
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable via console
+    }
+    
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidService(incoming());
+    }
+    
+    match /bookings/{bookingId} {
+      allow create: if isValidBooking(incoming()) && 
+                     incoming().status == 'pending' &&
+                     incoming().createdAt == request.time;
+      allow read: if isAdmin() || (isSignedIn() && existing().email == request.auth.token.email);
+      allow update: if isAdmin() || (
+        isSignedIn() && existing().email == request.auth.token.email &&
+        isValidBooking(incoming()) &&
+        incoming().status == 'cancelled' &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status'])
+      );
+      allow delete: if isAdmin();
+    }
+    
+    match /payments/{paymentId} {
+      allow create: if isValidPayment(incoming()) &&
+                     incoming().status == 'pending' &&
+                     incoming().createdAt == request.time;
+      allow read: if isAdmin() || (isSignedIn() && get(/databases/$(database)/documents/bookings/$(existing().bookingId)).data.email == request.auth.token.email);
+      allow write: if isAdmin();
+    }
+    
+    match /feedback/{feedbackId} {
+      allow create: if isValidFeedback(incoming()) && 
+                     incoming().approved == false &&
+                     incoming().createdAt == request.time;
+      allow read: if existing().approved == true || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+    
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

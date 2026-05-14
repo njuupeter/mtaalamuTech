@@ -1,0 +1,10 @@
+{
+  "name": "MtaalamuTech",
+  "description": "Premium IT and Investment services platform in Tanzania, offering forex education, web development, and digital solutions.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
